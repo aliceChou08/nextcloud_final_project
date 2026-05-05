@@ -61,3 +61,7 @@ ansible-vault encrypt ansible/vars/nextcloud_vars.yml
 bash auto_nextcloud.sh
 ```
 在瀏覽器輸入cloudflare tunnel申請的網址
+
+## 安裝時可能出現的問題
+[錯誤圖]安裝錯誤圖.PNG
+
