@@ -1,0 +1,50 @@
+---
+# 資料庫連線資訊
+db_ip: "192.168.*.*"
+db_name: "db"
+db_user: "serv_acc"  # 供 Nextcloud service account 的帳號
+db_pass: "********"       # 供 Nextcloud service account 的密碼
+db_path: "/opt/*/*" # 本機資料庫資料存放路徑
+
+# PostgreSQL 容器設定
+docname_postgre: "nextcloud-db"
+docimg_postgre: "postgres:*****"
+docport_postgre: 5432       # 對外 port
+
+# Nextcloud 管理員與路徑資訊
+nc_admin: "ncAdmin"
+nc_admin_pass: "******"
+nc_path: "/opt/*/html" # 本機 nc 網頁存放路徑
+
+# Nextcloud 容器設定
+docname_nc: "nextcloud-app"
+docimg_nc: "nextcloud:*****"
+docport_nc: 80              # 對外 port
+
+# ldaps
+ca_cert_file: "/root/*/*.cer" # 憑證在控制主機內絕對路徑
+dc_base_dn: "DC=abc,DC=local"  # 請改為你的ad網域
+dc_agent_user: "CN=sync_nc,CN=Users,DC=abc,DC=local"#ldap代理人
+dc_agent_pass: "******"
+
+
+
+#dc的資訊
+dc_fqdn: "*.*.local" #dc的fqdn
+dc_ip: "192.168.*.*" #dc的ip
+domain: ABC
+
+# File Server資訊
+file_server_ip: "192.168.*.*"
+
+#群組
+dept_shares:
+  - { mount_name: "會計部文件", share_name: "acct documents", ad_group: "acct employees" }#1.畫面顯示文字 2.file server內檔名 3.ad group權限
+  - { mount_name: "資訊部工具", share_name: "IT tools", ad_group: "IT employees" }
+  - { mount_name: "人資部資料", share_name: "hr documents", ad_group: "HR  employees" }
+
+#cloudflare tunnel
+tunnel_token: "******"
+docimg_cloudf: "cloudflare/cloudflared:latest"
+docname_cloudf: nextcloud-cloudf
+

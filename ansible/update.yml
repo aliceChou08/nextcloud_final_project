@@ -1,0 +1,10 @@
+---
+- name: update
+  hosts: linux
+  tasks: 
+    - name: 更新系統套件 (dnf -y update)
+      dnf:
+        name: "*"
+        state: latest
+        update_cache: yes
+

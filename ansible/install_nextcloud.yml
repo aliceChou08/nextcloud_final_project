@@ -1,0 +1,70 @@
+---
+- name: 部署Nextcloud 容器 (192.168.25.65)
+  hosts: nextcloud_server
+  vars_files:
+    - nextcloud_vars.yml
+  tasks:
+    # --- 新增：確保防火牆服務是活著的 ---
+    - name: 確保 firewalld 服務已啟動
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes  # 設定為開機自動啟動
+    - name: 建立本機nc網頁存放路徑
+      file:
+        path: "{{ nc_path }}"
+        state: directory
+        owner: "33" #owner設為nextcloud
+        group: "0"  #root群組
+        mode: '0750' #nextcloud可以進入存取檔案 root群組可備份
+        setype: container_file_t #允許docker存取目錄 (繞過SELinux)
+
+    - name: firewall allow 80 port,存取網頁
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+    - name: 將 Windows CA 憑證(目前在控制主機上)複製到 Nextcloud宿主機存放憑證的位置
+      copy:
+        src: "{{ ca_cert_file }}" #控制主機上
+        dest: "/etc/pki/ca-trust/source/anchors/windows_ad_ca.crt" #Nextcloud宿主機存放憑證的位置
+        mode: '0644' #管理員可以讀寫(可以覆蓋檔案,更新憑證)
+
+    - name: 啟用 Nextcloud 容器
+      docker_container:
+        name: "{{ docname_nc }}"
+        image: "{{ docimg_nc }}"
+        etc_hosts: >
+          {   
+            "{{ dc_fqdn }}": "{{ dc_ip }}",
+          }
+        restart_policy: always
+        ports:
+          - "{{ docport_nc }}:80" #對外port : 對內port
+        env:
+          # 指定的PostgreSQL資訊
+          POSTGRES_HOST: "{{ db_ip }}"
+          POSTGRES_DB: "{{ db_name }}"
+          POSTGRES_USER: "{{ db_user }}"
+          POSTGRES_PASSWORD: "{{ db_pass }}"
+          # 預設管理員帳號
+          NEXTCLOUD_ADMIN_USER: "{{ nc_admin }}"
+          NEXTCLOUD_ADMIN_PASSWORD: "{{ nc_admin_pass }}"
+          # 以下網域為受信任的網域
+          NEXTCLOUD_TRUSTED_DOMAINS: >
+            localhost
+            192.168.25.*
+            ncloud.mrnicephoto.com
+        volumes: #本機存放資料位置 : 容器存放資料位置
+          - "{{ nc_path }}:/var/www/html"
+          #掛載憑證
+          - /etc/pki/ca-trust/source/anchors/windows_ad_ca.crt:/usr/local/share/ca-certificates/windows_ad_ca.crt:ro
+
+
+    - name: 等待容器啟動 (15秒)
+      pause:
+        seconds: 15
+
+
+

@@ -1,0 +1,40 @@
+- name: 在 Nextcloud 主機上設定信任 Windows CA 憑證
+  hosts: nextcloud_server
+  vars_files:
+    - nextcloud_vars.yml
+  tasks:
+
+    #-----------------------------------------
+    #以下不需要(宿主機)
+    - name: 更新 Linux憑證信任庫
+      command: update-ca-trust extract
+    - name: 測試 LDAPS 服務連通性
+      shell: |
+        echo -n | openssl s_client -connect {{ dc_ip }}:636
+      register: ldaps_result
+      # 我們只需要確認它是否連通，不需要它一直掛著
+
+    - name: 顯示連線結果 (選配)
+      debug:
+        msg: "LDAPS 連線成功！"
+      when: "'CONNECTED' in ldaps_result.stdout"
+    #-------------------------------------------------
+    - name: 將憑證copy至docker內並更新
+      shell: |
+        docker exec -u root nextcloud-app update-ca-certificates
+
+    - name: 在docker內測試 LDAPS 服務連通
+      shell: |
+        docker exec {{ docname_nc }} sh -c \
+        "echo -n | openssl s_client -connect {{ dc_fqdn }}:636"
+      register: container_ldaps_result
+      ignore_errors: yes # 避免因為驗證警告導致 Playbook 中斷
+
+    - name: 顯示容器連線結果
+      debug:
+        msg: "容器內部 LDAPS 連線成功！"
+      
+      when: 
+        - "'CONNECTED' in container_ldaps_result.stdout"
+        - "'return code: 0' in container_ldaps_result.stdout"
+

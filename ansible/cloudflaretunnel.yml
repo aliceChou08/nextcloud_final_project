@@ -1,0 +1,20 @@
+---
+- name: 在 Nextcloud 那台 VM 部署 Cloudflare Tunnel
+  hosts: nextcloud_server
+
+  vars_files:
+    - nextcloud_vars.yml
+
+  tasks:
+    - name: 啟動 Cloudflare Tunnel docker
+      community.docker.docker_container:
+        name: "{{ docname_cloudf }}"
+        image: "{{ docimg_cloudf }}"
+        state: started
+        restart_policy: always
+
+        # host模式可以讓Tunnel輕易找到本機的 80 Port(nextcloud的port)
+        network_mode: host
+        # Cloudflare 的 Tunnel Token
+        command: "tunnel --no-autoupdate run --token {{ tunnel_token }}"
+        #不要更新,怕docker崩潰

@@ -1,0 +1,46 @@
+---
+- name: 部署 PostgreSQL 容器
+  hosts: postgresql_server
+  vars_files:
+    - nextcloud_vars.yml
+
+  tasks:
+    - name: 建立本機資料庫資料存放路徑
+      file:
+        path: "{{ db_path }}"
+        state: directory
+        owner: "70" #owner設為postgresql
+        group: "0"  #root群組
+        mode: '0750'  #postgresql可以進入存取檔案 root群組可備份
+        setype: container_file_t #允許docker存取目錄 (繞過SELinux)
+
+
+
+    - name: nextCloud對接PostgreSQL 5432的port (TCP)
+      firewalld:
+        port: 5432/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: 啟用 PostgreSQL docker
+      docker_container:
+        name: "{{ docname_postgre }}"
+        image: "{{ docimg_postgre }}"
+        restart_policy: always
+        ports:
+          - "{{ docport_postgre }}:5432"  #對外port : 對內port
+        env:
+          POSTGRES_DB: "{{ db_name }}"
+          POSTGRES_USER: "{{ db_user }}"
+          POSTGRES_PASSWORD: "{{ db_pass }}"
+        volumes: #本機存放資料位置 : 容器存放資料位置
+          - "{{ db_path }}:/var/lib/postgresql/data"
+
+    - name: 等待資料庫初始化 (10秒)
+      pause:
+        seconds: 10
+
+
+
+

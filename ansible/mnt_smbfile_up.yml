@@ -1,0 +1,30 @@
+---
+- name: 配置 Nextcloud SMB 外部儲存並強制群組隔離
+  hosts: nextcloud_server
+  vars_files:
+    - nextcloud_vars.yml
+  tasks:
+
+    - name: 安裝 smb client相關套件
+      shell: |
+        docker exec -u root {{ docname_nc }} apt-get update
+        docker exec -u root {{ docname_nc }} apt-get install -y procps smbclient libsmbclient-dev
+      register: install_output
+      # 透過關鍵字判定是否有真正執行安裝，讓報告變黃色 (changed)
+      changed_when: "'Setting up' in install_output.stdout"
+
+    - name: 建立各部門 SMB 外部儲存
+      shell: >
+        docker exec -u www-data {{ docname_nc }} php occ files_external:create
+        "{{ item.mount_name }}"
+        "smb"
+        "password::sessioncredentials"
+        -c "host={{ file_server_ip }}"
+        -c "domain={{ domain }}"
+        -c "share={{ item.share_name }}"
+      loop: "{{ dept_shares }}"
+      register: mount_create_results
+      failed_when:
+        - mount_create_results.rc != 0
+        - "'already exists' not in mount_create_results.stderr"
+

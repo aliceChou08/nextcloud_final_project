@@ -1,0 +1,32 @@
+- name: docker environment
+  hosts: linux
+  tasks:
+    - name: add Docker Repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+
+    - name: 安裝 Docker 與相關組件
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: 啟動 Docker 服務並設定開機啟動
+      systemd:
+        name: docker
+        state: started #開機啟動
+        enabled: yes
+
+    - name: 安裝 Python Docker 模組 (Ansible 控制 Docker 必備)
+      dnf:
+        name: python3-pip
+        state: present
+
+    - name: 透過 pip 安裝 docker 模組
+      pip:
+        name: docker

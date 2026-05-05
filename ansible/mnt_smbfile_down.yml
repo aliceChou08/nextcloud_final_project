@@ -1,0 +1,40 @@
+---
+- name: 等待 LDAP 群組同步並套用 SMB 權限
+  hosts: nextcloud_server
+  vars_files:
+    - nextcloud_vars.yml
+  tasks:
+    - name: 執行權限過濾與輪詢檢查
+      shell: |
+        # 1. 取得 Mount ID
+        ID=$(docker exec -u www-data {{ docname_nc }} php occ files_external:list | grep "{{ item.mount_name }}" | awk -F'|' '{print $2}' | tr -d ' ')
+        #1.用「|」分隔資料，並取第二個資料，2.把空格部分刪掉
+        if [ -z "$ID" ]; then
+          echo "Error: Mount ID not found for {{ item.mount_name }}"
+          exit 1
+          #有錯誤強迫終止腳本
+        fi
+
+        # 2. 檢查ldap群組是否有成功同步(可能尚未建立完成)
+        
+        docker exec -u www-data {{ docname_nc }} php occ group:list | grep -q "{{ item.ad_group }}"
+        # 「$?」=上方指令得出的結果 「0」= 有資料
+        if [ $? -eq 0 ]; then
+          #先將這個資料夾設為沒人看的到
+          docker exec -u www-data {{ docname_nc }} php occ files_external:applicable --unsets "$ID"
+           #只准特定的 AD 群組看這個資料夾
+          docker exec -u www-data {{ docname_nc }} php occ files_external:applicable --add-group="{{ item.ad_group }}" "$ID"
+          #file server檔案變動就馬上更新Nextcloud
+          docker exec -u www-data {{ docname_nc }} php occ files_external:config "$ID" filesystem_check_changes 1
+          echo "Successfully applied permissions for {{ item.ad_group }}"
+        else
+          echo "Group {{ item.ad_group }} not synchronized yet..."
+          exit 1
+        fi
+      loop: "{{ dept_shares }}"
+      register: group_check
+      # --- loop最多15次直到成功 ---
+      retries: 15          # 最多重試 15 次
+      delay: 5             # 每次間隔 5 秒 
+      until: group_check.rc == 0
+      changed_when: "'Successfully applied' in group_check.stdout"

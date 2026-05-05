@@ -1,0 +1,72 @@
+---
+- name: Nextcloud 自動化配置 (LDAP)
+  hosts: nextcloud_server
+  vars_files:
+    - nextcloud_vars.yml
+  tasks:
+    # 1. 啟用必要的 Apps
+    - name: 啟用 LDAP 與外部儲存 Apps
+      command: "docker exec -u www-data nextcloud-app php occ app:enable {{ item }}"
+      loop:
+        - user_ldap
+        - files_external
+
+    # 2. 配置 LDAP 伺服器連線
+    - name: 初始化 LDAP 
+      # 這一行會建立新設定並回傳 Config ID
+      shell: |
+        docker exec -u www-data {{ docname_nc }} \
+        php occ ldap:create-empty-config
+        #創一個ldap組態
+      register: ldap_init_output
+      # 如果已經存在，這行會噴錯，我們用 failed_when 抓出真實錯誤
+      failed_when: "ldap_init_output.rc != 0 and 'already exists' not in ldap_init_output.stderr"
+      ignore_errors: yes
+
+    - name: 動態查詢目前的 LDAP Config ID
+      # 列出所有設定，抓第一行 s開頭的編號
+      shell: |
+        docker exec -u www-data {{ docname_nc }} php occ ldap:show-config | grep -oP 's\d+' | head -n 1
+        #用正規法查第一個組態ID
+      register: current_ldap_id
+      changed_when: false
+      failed_when: current_ldap_id.stdout == ""
+       # 如果還是空的就報錯
+
+    - name: 寫入 LDAP 詳細參數
+      # 使用 trim 去掉可能存在的空白換行
+      command: >
+        docker exec -u www-data {{ docname_nc }} php occ ldap:set-config 
+        {{ current_ldap_id.stdout | trim }} {{ item.key }} '{{ item.value }}'
+      loop:
+         #走ldaps加密隧道
+        - { key: 'ldapHost', value: "ldaps://{{ dc_fqdn }}" } 
+        #ldaps專屬port
+        - { key: 'ldapPort', value: '636' }
+        #ldap的代理人
+        - { key: 'ldapAgentName', value: "{{ dc_agent_user }}" }
+        - { key: 'ldapAgentPassword', value: "{{ dc_agent_pass }}" }
+        #從哪顆樹搜尋
+        - { key: 'ldapBase', value: "{{ dc_base_dn }}" }
+        #只要人不要物件
+        - { key: 'ldapUserFilterObjectclass', value: 'person' }
+        #user windows帳號
+        - { key: 'ldapLoginFilter', value: '(&(|(objectclass=person))(sAMAccountName=%uid))' }
+        #顯示名稱
+        - { key: 'ldapUserDisplayName', value: 'displayname' }
+        #1:立即生效
+        - { key: 'ldapConfigurationActive', value: '1' }
+        #1:搜尋ad內樹系的所有層級
+        - { key: 'ldapSearchSubtree', value: '1' } 
+       
+        # --- 群組過濾設定 ---
+        - { key: 'ldapGroupFilterObjectclass', value: 'group' }
+        #我只要我要求的群組
+        - { key: 'ldapGroupFilter', value: "(&(|(objectclass=group))(|{% for share in dept_shares %}(cn={{ share.ad_group }}){% endfor %}))" }
+        #群組顯示名稱
+        - { key: 'ldapGroupDisplayName', value: 'cn' }
+        #群組裡的成員放在member欄位
+        - { key: 'ldapGroupMemberAssocAttr', value: 'member' }
+
+
+
