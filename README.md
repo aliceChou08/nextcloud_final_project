@@ -35,6 +35,7 @@ nextcloud final project 自動化部署
 ├── auto_nextcloud.sh
 ├── control_host.md
 ├── images
+│   ├── 安裝錯誤圖.PNG
 │   └── 架構圖.jpg
 ├── README.md
 ├── SESE109_10_周劭郁_期末 .pptx
