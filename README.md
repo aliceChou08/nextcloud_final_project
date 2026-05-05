@@ -47,6 +47,7 @@ nextcloud final project 自動化部署
 
 
 ## 安裝與使用
+- 特別注意一定要去更改[vars檔](ansible/vars/nextcloud_vars.yml)
 1. clone
 ``` bash
 git clone https://github.com/aliceChou08/nextcloud_final_project.git
@@ -63,5 +64,19 @@ bash auto_nextcloud.sh
 在瀏覽器輸入cloudflare tunnel申請的網址
 
 ## 安裝時可能出現的問題
-[錯誤圖]安裝錯誤圖.PNG
+[錯誤圖](安裝錯誤圖.PNG)
+- 重新下一次指令
+```bash
+bash auto_nextcloud.sh
+```
+- 可能原因: Nextcloud尚未安裝完畢
+
+## 流程
+1. [update system tools](ansible/update.yml)
+2. [install docker](ansible/docker_env.yml)
+3. [install postgreSQL](ansible/install_postgresql.yml)
+4. [install Nextcloud](ansible/install_nextcloud.yml)
+5. [update update-ca-trust extract of dc ](ansible/ldaps_cert.yml)
+6. [ldpas' configuration ](ansible/nc_ldaps.yml)
+7. 
 
