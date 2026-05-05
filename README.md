@@ -33,11 +33,13 @@ nextcloud final project 自動化部署
 │   └── vars
 │       └── nextcloud_vars.yml
 ├── auto_nextcloud.sh
-├── control_host.txt
+├── control_host.md
 ├── images
 │   └── 架構圖.jpg
+├── README.md
+├── SESE109_10_周劭郁_期末 .pptx
 └── 技術文件.docx
-└── README.md
+
 ```
 
 ## 專案架構圖
@@ -59,3 +61,7 @@ ansible-vault encrypt ansible/vars/nextcloud_vars.yml
 bash auto_nextcloud.sh
 ```
 在瀏覽器輸入cloudflare tunnel申請的網址
+
+## 安裝時可能出現的問題
+[錯誤圖]安裝錯誤圖.PNG
+
