@@ -47,12 +47,12 @@ deprecation_warnings = False
 interpreter_python = auto_legacy_silent
 EOF
 ```
-#設定主機檔位置,不要特別警告以利自動化
+# 設定主機檔位置,不要特別警告以利自動化
 -----------------------------------------------------------------------------------------------
-	sh  ansible.sh(執行)
-	建立機器庫存清單inventory
-	vi /etc/ansible/hosts
-----------------------------------------------------
+-	sh  ansible.sh(執行)
+#	建立機器庫存清單inventory
+-	vi /etc/ansible/hosts
+```bash
 [linux]
 192.168.0.1
 192.168.0.2
@@ -60,10 +60,11 @@ EOF
 192.168.0.1
 [postgresql_server]
 192.168.0.2
-----------------------------------------------------
-	建立金鑰對
-	ssh-keygen
-	ssh-copy-id root@192.168.0.1
-       ssh-copy-id root@192.168.0.2
- (公鑰匯入nextcloud那台主機,未來用它用來驗證控制主機)
- (公鑰匯入postgresql那台主機,未來用它用來驗證控制主機)
+```
+
+#	建立金鑰對
+-	ssh-keygen
+-	ssh-copy-id root@192.168.0.1 #公鑰匯入nextcloud那台主機,未來用它用來驗證控制主機
+- ssh-copy-id root@192.168.0.2 #公鑰匯入postgresql那台主機,未來用它用來驗證控制主機
+ 
+ 
