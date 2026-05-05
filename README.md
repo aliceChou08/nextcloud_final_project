@@ -9,7 +9,7 @@ nextcloud final project 自動化部署
 外網人員能藉由nextcloud存取公司內網的File server
 
 ## 環境需求
-1. 需要一台控制主機-參考[控制主機文件](control_host.txt)
+1. 需要一台控制主機-參考[控制主機文件](control_host.md)
 2. 兩台rockey linux,需設置好ip
 3. 一台DC跟一台File server,都是windows server,且加入AD網域
 4. AD網域內需要一台企業CA
