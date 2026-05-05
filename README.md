@@ -1,5 +1,9 @@
 # nextcloud_final_project
 nextcloud final project 自動化部署
+- docker
+- ansible
+- Nextcloud
+- ldaps
 
 ## 功能特色
 外網人員能藉由nextcloud存取公司內網的File server
