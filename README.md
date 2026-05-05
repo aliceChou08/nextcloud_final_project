@@ -77,6 +77,8 @@ bash auto_nextcloud.sh
 3. [install postgreSQL](ansible/install_postgresql.yml)
 4. [install Nextcloud](ansible/install_nextcloud.yml)
 5. [update update-ca-trust extract of dc ](ansible/ldaps_cert.yml)
-6. [ldpas' configuration ](ansible/nc_ldaps.yml)
-7. 
+6. [ldpas' configuration](ansible/nc_ldaps.yml)
+7. [mount external storages from file server](ansible/mnt_smbfile_up.yml)
+8. [add filter for user to view files](ansible/mnt_smbfile_down.yml)
+9. [add cloudflare tunnel for url](ansible/cloudflaretunnel.yml)
 
