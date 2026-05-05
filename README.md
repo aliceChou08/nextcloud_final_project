@@ -65,7 +65,7 @@ bash auto_nextcloud.sh
 在瀏覽器輸入cloudflare tunnel申請的網址
 
 ## 安裝時可能出現的問題
-[錯誤圖](安裝錯誤圖.PNG)
+[錯誤圖](images/安裝錯誤圖.PNG)
 - 重新下一次指令
 ```bash
 bash auto_nextcloud.sh
