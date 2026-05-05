@@ -57,7 +57,7 @@ git clone https://github.com/aliceChou08/nextcloud_final_project.git
 ```bash
 cd nextcloud_final_project
 ```
-3. 執行
+3. 執行(先進行加密)
 ```bash
 ansible-vault encrypt ansible/vars/nextcloud_vars.yml
 bash auto_nextcloud.sh
