@@ -3,7 +3,7 @@
   hosts: nextcloud_server
 
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
 
   tasks:
     - name: 啟動 Cloudflare Tunnel docker
