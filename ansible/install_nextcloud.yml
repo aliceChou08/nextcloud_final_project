@@ -2,7 +2,7 @@
 - name: 部署Nextcloud 容器 (192.168.25.65)
   hosts: nextcloud_server
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
   tasks:
     # --- 新增：確保防火牆服務是活著的 ---
     - name: 確保 firewalld 服務已啟動
