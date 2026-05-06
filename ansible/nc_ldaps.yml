@@ -2,11 +2,11 @@
 - name: Nextcloud 自動化配置 (LDAP)
   hosts: nextcloud_server
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
   tasks:
     # 1. 啟用必要的 Apps
     - name: 啟用 LDAP 與外部儲存 Apps
-      command: "docker exec -u www-data nextcloud-app php occ app:enable {{ item }}"
+      command: "docker exec -u www-data {{ docname_nc }} php occ app:enable {{ item }}"
       loop:
         - user_ldap
         - files_external
