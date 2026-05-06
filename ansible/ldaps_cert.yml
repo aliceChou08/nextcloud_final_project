@@ -1,7 +1,7 @@
 - name: 在 Nextcloud 主機上設定信任 Windows CA 憑證
   hosts: nextcloud_server
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
   tasks:
 
     #-----------------------------------------
