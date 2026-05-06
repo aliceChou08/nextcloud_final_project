@@ -21,7 +21,7 @@
     #-------------------------------------------------
     - name: 將憑證copy至docker內並更新
       shell: |
-        docker exec -u root nextcloud-app update-ca-certificates
+        docker exec -u root {{ docname_nc }} update-ca-certificates
 
     - name: 在docker內測試 LDAPS 服務連通
       shell: |
