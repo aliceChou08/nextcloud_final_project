@@ -2,7 +2,7 @@
 - name: 等待 LDAP 群組同步並套用 SMB 權限
   hosts: nextcloud_server
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
   tasks:
     - name: 執行權限過濾與輪詢檢查
       shell: |
