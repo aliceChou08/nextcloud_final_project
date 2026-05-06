@@ -2,7 +2,7 @@
 - name: 配置 Nextcloud SMB 外部儲存並強制群組隔離
   hosts: nextcloud_server
   vars_files:
-    - nextcloud_vars.yml
+    - vars/nextcloud_vars.yml
   tasks:
 
     - name: 安裝 smb client相關套件
